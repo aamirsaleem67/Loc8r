@@ -66,9 +66,9 @@ module.exports.homelist = function (req, res) {
         method: "GET",
         json: {},
         qs: {
-            lng: -0.7992599,
-            lat: 51.378091,
-            maxDistance: 20
+            lng: 67.0500,
+            lat: 24.8667,
+            maxDistance: 200
         }
     };
     request(
@@ -76,6 +76,8 @@ module.exports.homelist = function (req, res) {
         function (err, response, body) {
             var i, data;
             data = body;
+            console.log("my data");
+            console.log(data);
             if (response.statusCode === 200 && data.length) {
                 for (i = 0; i < data.length; i++) {
                     data[i].distance = _formatDistance(data[i].distance);

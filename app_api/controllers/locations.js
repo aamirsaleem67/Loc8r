@@ -1,73 +1,90 @@
 var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
 
-const _buildLocationList = function(req, res, results, stats) {
-  let locations = [];
-  results.forEach((doc) => {
-    locations.push({
-      distance: doc.dis,
-      name: doc.obj.name,
-      address: doc.obj.address,
-      rating: doc.obj.rating,
-      facilities: doc.obj.facilities,
-      _id: doc.obj._id
+var meterConversion = (function() {
+    var mToKm = function(distance) {
+        return parseFloat(distance / 1000);
+    };
+    var kmToM = function(distance) {
+        return parseFloat(distance * 1000);
+    };
+    return {
+        mToKm : mToKm,
+        kmToM : kmToM
+    };
+})();
+
+
+var buildLocationList = function(req, res, results, stats) {
+    var locations = [];
+    results.forEach(function(doc) {
+        locations.push({
+            distance: meterConversion.mToKm(doc.dis), 
+            name: doc.obj.name,
+            address: doc.obj.address,
+            rating: doc.obj.rating,
+            facilities: doc.obj.facilities,
+            _id: doc.obj._id
+        });
     });
-  });
-  return locations;
+    return locations;
 };
 var sendJsonResponse = function(res, status, content) {
   res.status(status);
   res.json(content);
 };
 
-var theEarth = (function() {
-  var earthRadius = 6371; // km, miles is 3959
+// var theEarth = (function() {
+//   var earthRadius = 6371; // km, miles is 3959
 
-  var getDistanceFromRads = function(rads) {
-    return parseFloat(rads * earthRadius);
-  };
+//   var getDistanceFromRads = function(rads) {
+//     return parseFloat(rads * earthRadius);
+//   };
 
-  var getRadsFromDistance = function(distance) {
-    return parseFloat(distance / earthRadius);
-  };
+//   var getRadsFromDistance = function(distance) {
+//     return parseFloat(distance / earthRadius);
+//   };
 
-  return {
-    getDistanceFromRads: getDistanceFromRads,
-    getRadsFromDistance: getRadsFromDistance
-  };
-})();
+//   return {
+//     getDistanceFromRads: getDistanceFromRads,
+//     getRadsFromDistance: getRadsFromDistance
+//   };
+// })();
 
 /* GET list of locations */
-module.exports.locationsListByDistance = function (req, res) {
-  const lng = parseFloat(req.query.lng);
-  const lat = parseFloat(req.query.lat);
-  const maxDistance = parseFloat(req.query.maxDistance);
-  const point = {
-    type: "Point",
-    coordinates: [lng, lat]
-  };
-  const geoOptions = {
-    spherical: true,
-    maxDistance: 20000,
-    num: 10
-  };
-  if (!lng || !lat || !maxDistance) {
-    console.log('locationsListByDistance missing params');
-    res
-      .status(404)
-      .json({
-        message : 'lng, lat and maxDistance query parameters are all required'
-      });
-    return;
-  }
-  Loc.geoNear(point, geoOptions, (err, results, stats) => {
-    const locations = _buildLocationList(req, res, results, stats);
-    console.log('Geo Results', results);
-    console.log('Geo stats', stats);
-    res
-      .status(200)
-      .json(locations);
-  });
+/* GET list of locations */
+module.exports.locationsListByDistance = function(req, res) {
+    var lng = parseFloat(req.query.lng);
+    var lat = parseFloat(req.query.lat);
+    var maxDistance = parseFloat(req.query.maxDistance);
+    if ((!lng && lng !== 0) || (!lat && lat !== 0) || !maxDistance) {
+        console.log('locationsListByDistance missing params');
+        sendJsonResponse(res, 404, {
+            "message" : "lng, lat and maxDistance query parameters are all required"
+        });
+        return;
+    }
+    var point = {
+        type: "Point",
+        coordinates: [lng, lat]
+    };
+    var geoOptions =  {
+        spherical: true,
+        maxDistance: meterConversion.kmToM(maxDistance),
+        // num: 10
+    };
+    Loc.geoNear(point, geoOptions, function(err, results, stats) {
+        var locations;
+        console.log('Geo Results', results);
+        console.log('Geo stats', stats);
+        if (err) {
+            console.log('geoNear error:', err);
+            sendJsonResponse(res, 404, err);
+        } else {
+            locations = buildLocationList(req, res, results, stats);
+            sendJsonResponse(res, 200, locations);
+        }
+    });
 };
 
 

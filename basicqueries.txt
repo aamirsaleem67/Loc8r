@@ -1,0 +1,36 @@
+ db.locations.insert({
+ name: 'Nawabshah pakwan',
+ address: '125 High Street, Reading, RG6 1PS',
+ rating: 3,
+ facilities: ['Biryani', 'Family Hall', 'Premium wifi'],
+ coords: [68.3349, 26.3820],
+ openingTimes: [{
+ days: 'Monday - Friday',
+ opening: '7:00am',
+ closing: '7:00pm',
+ closed: false
+ }, {
+ days: 'Saturday',
+ opening: '8:00am',
+ closing: '5:00pm',
+ closed: false
+ }, {
+ days: 'Sunday',
+ closed: true
+ }]
+})
+
+
+/*update*/
+
+db.locations.update(
+   { name: "Hyderabad pakwan" },
+     { $push: { reviews:{
+            author: 'Simon Holmes',
+            id: ObjectId(),
+            rating: 5,
+            timestamp: new Date("July 10, 2017"),
+         reviewText: "What a great place" 
+
+}} }
+)

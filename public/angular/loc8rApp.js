@@ -1,5 +1,5 @@
-angular.module('loc8rApp',[]);
-    
+angular.module('loc8rApp', []);
+
 
 var _isNumeric = function (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -29,20 +29,30 @@ var locationListCtrl = function ($scope) {
             name: 'Burger Queen',
             address: '125 High Street, Reading, RG6 1PS',
             rating: 3,
-            facilities: ['Hot drinks', 'Food', 'Premium wifi'],
+            facilities: ['Hot', 'Food', 'Premium wifi'],
             distance: '0.296456',
             _id: '5370a35f2536f6785f8dfb6a'
         }, {
             name: 'Costy',
             address: '125 High Street, Reading, RG6 1PS',
             rating: 5,
-            facilities: ['Hot drinks', 'Food', 'Alcoholic drinks'],
+            facilities: ['Hot drinks', 'Food', ' drinks'],
             distance: '0.7865456',
             _id: '5370a35f2536f6785f8dfb6a'
         }]
     };
 };
 
+var ratingStars = function () {
+    return {
+        scope: {
+            thisRating: '=rating'
+        },
+       templateUrl: '/angular/rating-stars.html'
+    };
+};
+
 angular.module('loc8rApp')
     .controller('locationListCtrl', locationListCtrl)
-    .filter('formatDistance', formatDistance);
+    .filter('formatDistance', formatDistance)
+    .directive('ratingStars', ratingStars);

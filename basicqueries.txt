@@ -1,9 +1,9 @@
  db.locations.insert({
- name: 'Nawabshah pakwan',
+ name: 'Tariq Road Foods',
  address: '125 High Street, Reading, RG6 1PS',
- rating: 3,
+ rating: 3.5,
  facilities: ['Biryani', 'Family Hall', 'Premium wifi'],
- coords: [68.3349, 26.3820],
+ coords: [67.0599, 24.8716],
  openingTimes: [{
  days: 'Monday - Friday',
  opening: '7:00am',
@@ -24,9 +24,9 @@
 /*update*/
 
 db.locations.update(
-   { name: "Hyderabad pakwan" },
+   { name: "Tariq Road Foods" },
      { $push: { reviews:{
-            author: 'Simon Holmes',
+            author: 'Tariq',
             id: ObjectId(),
             rating: 5,
             timestamp: new Date("July 10, 2017"),
